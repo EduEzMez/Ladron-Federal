@@ -73,13 +73,14 @@ export class InterrogationScene extends BaseScene {
       ctx.game.sceneManager.goTo('office');
     };
 
-    body.querySelectorAll('[data-witness]').forEach((btn, i) => {
-      btn.onclick = () => {
+    body.querySelectorAll('[data-witness]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
         const id = btn.dataset.witness;
         const witness = witnesses.find(w => w.id === id);
         const witnessIndex = witnesses.indexOf(witness);
         this._showDialogue(witness, witnessIndex, ctx.case.hasConsultedWitness(id));
-      };
+      });
     });
 
     gsap.from('.witness-card', { x: -30, opacity: 0, duration: 0.4, stagger: 0.1 });
@@ -163,7 +164,8 @@ export class InterrogationScene extends BaseScene {
     `;
 
     const modal = overlay.querySelector('.modal--dialogue');
-    // Clicks dentro del modal NO propagan al overlay de fondo
+
+    // Clicks dentro del modal nunca cierran el overlay
     modal.addEventListener('click', (e) => e.stopPropagation());
 
     overlay.querySelector('.dialogue__close').onclick = (e) => {
@@ -171,9 +173,17 @@ export class InterrogationScene extends BaseScene {
       overlay.remove();
       this._render(this.body, ctx);
     };
-    // Solo cierra si el clic fue exactamente en el fondo oscuro
-    overlay.onclick = () => overlay.remove();
+
+    // Agregar el overlay al DOM PRIMERO
     document.body.appendChild(overlay);
+
+    // El listener de cierre por fondo oscuro se activa DESPUÉS del tick actual,
+    // así el click del botón "Conversar" ya terminó y no lo dispara
+    requestAnimationFrame(() => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.remove();
+      });
+    });
 
     // Animación de entrada
     gsap.from(overlay.querySelector('.modal--dialogue'), {
@@ -181,12 +191,15 @@ export class InterrogationScene extends BaseScene {
     });
 
     if (!alreadyConsulted) {
-      bus.emit(EVENTS.SHOW_TOAST, {
-        icon: '📝',
-        title: 'Pistas anotadas en el cuaderno',
-        body: 'Revisalas arriba a la derecha.',
-        duration: 2800,
-      });
+      // Delay para que el toast aparezca después de que el modal esté visible
+      setTimeout(() => {
+        bus.emit(EVENTS.SHOW_TOAST, {
+          icon: '📝',
+          title: 'Pistas anotadas en el cuaderno',
+          body: 'Revisalas arriba a la derecha.',
+          duration: 2800,
+        });
+      }, 600);
     }
   }
 
