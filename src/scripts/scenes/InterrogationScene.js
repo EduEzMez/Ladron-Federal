@@ -162,11 +162,17 @@ export class InterrogationScene extends BaseScene {
       </div>
     `;
 
-    overlay.querySelector('.dialogue__close').onclick = () => {
+    const modal = overlay.querySelector('.modal--dialogue');
+    // Clicks dentro del modal NO propagan al overlay de fondo
+    modal.addEventListener('click', (e) => e.stopPropagation());
+
+    overlay.querySelector('.dialogue__close').onclick = (e) => {
+      e.stopPropagation();
       overlay.remove();
       this._render(this.body, ctx);
     };
-    overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+    // Solo cierra si el clic fue exactamente en el fondo oscuro
+    overlay.onclick = () => overlay.remove();
     document.body.appendChild(overlay);
 
     // Animación de entrada
