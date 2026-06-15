@@ -1,0 +1,74 @@
+/* =============================================================================
+   RESPONSIVE
+   Mobile-first. Breakpoints: 480, 768, 1024, 1280.
+   ============================================================================= */
+
+/* ---------- MOBILE (default, < 480px) ---------- */
+/* Estilos base ya son mobile-first */
+
+/* ---------- LARGE MOBILE (480px+) ---------- */
+@media (min-width: 480px) {
+  .scene-body { padding: var(--sp-5); }
+  .title-screen__main { font-size: var(--fs-3xl); }
+  .hud { padding: var(--sp-3) var(--sp-5); }
+}
+
+/* ---------- TABLET (768px+) ---------- */
+@media (min-width: 768px) {
+  :root { --font-scale: 1.05; }
+  .scene-body { padding: var(--sp-6); gap: var(--sp-6); }
+  .title-screen__content { padding: var(--sp-8) var(--sp-6); }
+  .map-scene {
+    grid-template-columns: 2fr 1fr;
+  }
+  .ending__stats { grid-template-columns: repeat(4, 1fr); }
+  .office__grid { grid-template-columns: repeat(2, 1fr); }
+  .credits-list { grid-template-columns: repeat(2, 1fr); }
+  .modal { padding: var(--sp-6); }
+}
+
+/* ---------- LAPTOP (1024px+) ---------- */
+@media (min-width: 1024px) {
+  :root { --font-scale: 1.1; }
+  .map-scene__canvas-wrap { aspect-ratio: 16/10; max-height: none; }
+  .office__grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  .hud__brand { font-size: var(--fs-lg); }
+  .hud__case { font-size: var(--fs-base); }
+}
+
+/* ---------- DESKTOP (1280px+) ---------- */
+@media (min-width: 1280px) {
+  .scene-body { padding: var(--sp-7); }
+  .ending__panel { max-width: 720px; }
+}
+
+/* ---------- LANDSCAPE MÓVIL ---------- */
+@media (orientation: landscape) and (max-height: 600px) {
+  .title-screen__content { padding: var(--sp-4); }
+  .title-screen__main { font-size: var(--fs-xl); }
+  .scene-body { padding: var(--sp-3); gap: var(--sp-3); }
+  .hud { padding: var(--sp-2) var(--sp-4); }
+}
+
+/* ---------- TÁCTIL ---------- */
+@media (hover: none) and (pointer: coarse) {
+  .menu-btn,
+  .action-card,
+  .hud__btn,
+  .witness-card button {
+    min-height: 48px;
+    min-width: 48px;
+  }
+  /* Sin hover effects en touch (evita estados pegados) */
+  .menu-btn:hover:not(:disabled),
+  .action-card:hover:not(:disabled),
+  .suspect-card:hover {
+    transform: none;
+  }
+}
+
+/* ---------- IMPRESIÓN ---------- */
+@media print {
+  .hud, .toast-host, .modal-overlay { display: none !important; }
+  .scene-body { padding: 0; }
+}

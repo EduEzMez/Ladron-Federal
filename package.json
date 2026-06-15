@@ -1,0 +1,33 @@
+{
+  "name": "tras-las-huellas-del-ladron-federal",
+  "version": "1.0.0",
+  "description": "Juego educativo argentino de detectives inspirado en Carmen Sandiego. Pensamiento lógico, geografía y patrimonio cultural para niños de 10 a 12 años.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "three": "^0.160.0",
+    "gsap": "^3.12.5",
+    "jspdf": "^2.5.1"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "juego-educativo",
+    "argentina",
+    "geografia",
+    "patrimonio-cultural",
+    "ninos",
+    "three.js",
+    "vanilla-javascript"
+  ],
+  "license": "MIT"
+}

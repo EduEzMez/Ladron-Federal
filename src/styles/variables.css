@@ -1,0 +1,84 @@
+/* =============================================================================
+   DESIGN TOKENS
+   Paleta principal + tipografía + espaciados + animación.
+   ============================================================================= */
+
+:root {
+  /* Paleta */
+  --c-red: #E63946;
+  --c-yellow: #FFD60A;
+  --c-blue: #118AB2;
+  --c-green: #06D6A0;
+  --c-white: #FFFFFF;
+  --c-ink: #1A1F2C;
+  --c-ink-soft: #46506A;
+  --c-paper: #FFF8EC;
+  --c-cream: #FFF3D6;
+  --c-shadow: rgba(26, 31, 44, 0.15);
+  --c-shadow-strong: rgba(26, 31, 44, 0.35);
+
+  /* Colores semánticos */
+  --c-bg: var(--c-paper);
+  --c-text: var(--c-ink);
+  --c-text-soft: var(--c-ink-soft);
+  --c-card: var(--c-white);
+  --c-success: var(--c-green);
+  --c-danger: var(--c-red);
+  --c-warning: var(--c-yellow);
+  --c-primary: var(--c-blue);
+
+  /* Tipografía */
+  --font-base: 'Nunito', system-ui, sans-serif;
+  --font-display: 'Bebas Neue', 'Nunito', system-ui, sans-serif;
+  --font-scale: 1;
+  --fs-xs: calc(0.75rem * var(--font-scale));
+  --fs-sm: calc(0.875rem * var(--font-scale));
+  --fs-base: calc(1rem * var(--font-scale));
+  --fs-md: calc(1.125rem * var(--font-scale));
+  --fs-lg: calc(1.5rem * var(--font-scale));
+  --fs-xl: calc(2rem * var(--font-scale));
+  --fs-2xl: calc(2.75rem * var(--font-scale));
+  --fs-3xl: calc(3.75rem * var(--font-scale));
+
+  /* Espaciados */
+  --sp-0: 0;
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 3rem;
+  --sp-8: 4rem;
+
+  /* Bordes y radios */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  /* Sombras */
+  --shadow-sm: 0 2px 6px var(--c-shadow);
+  --shadow-md: 0 6px 18px var(--c-shadow);
+  --shadow-lg: 0 16px 40px var(--c-shadow-strong);
+
+  /* Z-index */
+  --z-base: 1;
+  --z-hud: 50;
+  --z-modal: 100;
+  --z-toast: 150;
+  --z-tooltip: 200;
+
+  /* Tamaños mínimos táctiles */
+  --tap-min: 44px;
+}
+
+/* Modo alto contraste */
+[data-contrast='high'] {
+  --c-bg: #000000;
+  --c-text: #FFFFFF;
+  --c-text-soft: #DDDDDD;
+  --c-card: #1A1A1A;
+  --c-paper: #000000;
+  --c-cream: #1A1A1A;
+}
