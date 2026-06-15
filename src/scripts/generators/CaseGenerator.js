@@ -66,16 +66,18 @@ function generateWitnesses(rng, currentProv, nextProv, suspect) {
   const witnesses = locations.map((loc, idx) => {
     const geoTpl = pick(rng, GEOGRAPHIC_CLUE_TEMPLATES);
     const idTpl = pick(rng, IDENTITY_CLUE_TEMPLATES);
+    const witnessEntry = pick(rng, WITNESS_FIRST_NAMES);
 
     return {
       id: `${currentProv.id}_w${idx}`,
-      name: pick(rng, WITNESS_FIRST_NAMES),
-      location: loc,
+      name: witnessEntry.name,
+      gender: witnessEntry.gender,
+      location: loc.name,          // string directo, no objeto
+      locationIcon: loc.icon,
       intro: pick(rng, WITNESS_INTROS),
       outro: pick(rng, WITNESS_OUTROS),
       geographicClue: nextProv ? geoTpl({ destination: nextProv }) : null,
       identityClue: idTpl({ suspect }),
-      // Atributo revelado por la pista de identidad (para el sistema de orden de captura)
       revealedAttribute: deriveAttributeFromTemplate(idTpl, suspect),
     };
   });

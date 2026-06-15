@@ -83,7 +83,24 @@ export const WITNESS_LOCATIONS = [
 ];
 
 export const WITNESS_FIRST_NAMES = [
-  'Don Roque','Doña Mirta','Susanita','Manolo','Yamila','Tincho','Marisa',
-  'Don Alfredo','Doña Pepa','Lautaro','Camila','Aldana','El Negro Pérez',
-  'Doña Toti','Joselo','Don Cacho','Lalo','Norma','Beba','Doña Rosa',
+  { name: 'Don Roque',       gender: 'm' },
+  { name: 'Doña Mirta',      gender: 'f' },
+  { name: 'Susanita',        gender: 'f' },
+  { name: 'Manolo',          gender: 'm' },
+  { name: 'Yamila',          gender: 'f' },
+  { name: 'Tincho',          gender: 'm' },
+  { name: 'Marisa',          gender: 'f' },
+  { name: 'Don Alfredo',     gender: 'm' },
+  { name: 'Doña Pepa',       gender: 'f' },
+  { name: 'Lautaro',         gender: 'm' },
+  { name: 'Camila',          gender: 'f' },
+  { name: 'Aldana',          gender: 'f' },
+  { name: 'El Negro Pérez',  gender: 'm' },
+  { name: 'Doña Toti',       gender: 'f' },
+  { name: 'Joselo',          gender: 'm' },
+  { name: 'Don Cacho',       gender: 'm' },
+  { name: 'Lalo',            gender: 'm' },
+  { name: 'Norma',           gender: 'f' },
+  { name: 'Beba',            gender: 'f' },
+  { name: 'Doña Rosa',       gender: 'f' },
 ];

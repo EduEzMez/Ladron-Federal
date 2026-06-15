@@ -1,11 +1,11 @@
 // =============================================================================
-// MAP SCENE — Mapa 3D de Argentina
-// El jugador selecciona la siguiente provincia a la que viajar. Si elige bien,
-// avanza al TravelScene; si elige mal, pierde tiempo (viaje en vano) y vuelve.
+// MAP SCENE — Mapa SVG 2D de Argentina
+// El jugador selecciona la siguiente provincia. Si elige bien avanza;
+// si elige mal pierde tiempo y vuelve a la oficina.
 // =============================================================================
 
 import { BaseScene } from './BaseScene.js';
-import { ProvinceMap3D } from '../components/ProvinceMap3D.js';
+import { ProvinceMapSVG } from '../components/ProvinceMapSVG.js';
 import { audio } from '../systems/AudioSystem.js';
 import { bus, EVENTS } from '../core/EventBus.js';
 import { PROVINCES } from '../data/provinces.js';
@@ -15,47 +15,60 @@ export class MapScene extends BaseScene {
     audio.playMusic('investigate');
     this._busy = false;
 
-    const current = ctx.case.currentProvince;
-    const visited = [...ctx.case.visitedProvinces];
+    const current  = ctx.case.currentProvince;
+    const visited  = [...ctx.case.visitedProvinces];
+    // Provincias disponibles = todas excepto la actual y las ya visitadas
+    const available = PROVINCES
+      .filter(p => !visited.includes(p.id) && p.id !== current.id)
+      .map(p => p.id);
 
     body.innerHTML = `
       <section class="map-scene">
         <header class="map-scene__header">
-          <button class="menu-btn menu-btn--ghost" data-action="back">← Cancelar viaje</button>
+          <button class="menu-btn menu-btn--ghost" data-action="back">← Cancelar</button>
           <div class="map-scene__title">
-            <h2>🗺️ Elegí tu próximo destino</h2>
-            <p>Tocá una provincia en el mapa. Las pistas que tenés señalan hacia dónde fue el ladrón.</p>
+            <h2>🗺️ ¿A dónde vas?</h2>
+            <p>Tocá una provincia coloreada. Las pistas te señalan el camino.</p>
           </div>
         </header>
 
-        <div class="map-scene__canvas-wrap">
-          <canvas id="province-map-canvas" aria-label="Mapa interactivo de Argentina"></canvas>
-          <div class="map-scene__legend">
-            <span><span class="dot dot--current"></span> Estás acá</span>
-            <span><span class="dot dot--visited"></span> Ya visitada</span>
-            <span><span class="dot dot--available"></span> Disponible</span>
-          </div>
-        </div>
+        <div class="map-scene__body">
+          <div class="map-scene__map-wrap" id="svg-map-container"></div>
 
-        <aside class="map-scene__sidebar">
-          <h3>📋 Pistas geográficas</h3>
-          ${ctx.clues.geographicClues.length === 0
-            ? '<p class="map-scene__empty">Recolectá pistas hablando con testigos antes de viajar.</p>'
-            : `<ul class="clue-list">
-                ${ctx.clues.geographicClues.slice(-6).map(c => `
-                  <li class="clue-list__item">
-                    <span class="clue-list__from">desde ${c.provinceFrom}:</span>
-                    <p>"${c.text}"</p>
-                  </li>
-                `).join('')}
-              </ul>`
-          }
-          <div class="map-scene__costs">
-            <strong>Costo de viaje:</strong>
-            <span>· Misma región: 6h</span>
-            <span>· Otra región: 12h</span>
-          </div>
-        </aside>
+          <aside class="map-scene__sidebar">
+            <div class="map-scene__legend">
+              <h3>Referencias</h3>
+              <ul>
+                <li><span class="legend-dot" style="background:#E63946"></span> Estás acá</li>
+                <li><span class="legend-dot" style="background:#06D6A0"></span> Ya visitada</li>
+                <li><span class="legend-dot" style="background:#118AB2"></span> Disponible</li>
+                <li><span class="legend-dot" style="background:#CBD5E1"></span> No disponible</li>
+              </ul>
+            </div>
+
+            <div class="map-scene__clues">
+              <h3>📋 Pistas geográficas</h3>
+              ${ctx.clues.geographicClues.length === 0
+                ? '<p class="map-scene__empty">Entrevistá testigos antes de viajar para conseguir pistas.</p>'
+                : `<ul class="clue-list">
+                    ${ctx.clues.geographicClues.slice(-5).map(c => `
+                      <li class="clue-list__item">
+                        <span class="clue-list__from">desde ${c.provinceFrom}:</span>
+                        <p>"${c.text}"</p>
+                      </li>
+                    `).join('')}
+                  </ul>`
+              }
+            </div>
+
+            <div class="map-scene__costs">
+              <strong>⏱ Costo de viaje</strong>
+              <p>Misma región: <strong>6h</strong></p>
+              <p>Otra región: <strong>12h</strong></p>
+              <p class="map-scene__cost-warn">Un viaje incorrecto cuesta 6h.</p>
+            </div>
+          </aside>
+        </div>
       </section>
     `;
 
@@ -64,14 +77,14 @@ export class MapScene extends BaseScene {
       ctx.game.sceneManager.goTo('office');
     };
 
-    const canvas = body.querySelector('#province-map-canvas');
-    this.map = new ProvinceMap3D(canvas, {
-      currentProvinceId: current.id,
-      visitedProvinces: visited,
-      highlightedProvinces: PROVINCES.filter(p => !visited.includes(p.id)).map(p => p.id),
-      onSelect: (provinceId) => this._handleSelect(provinceId),
+    const mapContainer = body.querySelector('#svg-map-container');
+    this._map = new ProvinceMapSVG(mapContainer, {
+      currentProvinceId:  current.id,
+      visitedProvinces:   visited,
+      availableProvinces: available,
+      onSelect: (id) => this._handleSelect(id),
     });
-    this.map.start();
+    this._map.render();
   }
 
   async _handleSelect(provinceId) {
@@ -88,42 +101,34 @@ export class MapScene extends BaseScene {
     const result = ctx.case.travelTo(provinceId);
 
     if (result.success) {
-      // Viaje correcto: ir a la escena de viaje
       const province = result.province;
-      const fromRegion = current.region;
-      const toRegion = province.region;
-      const hours = fromRegion === toRegion ? 6 : 12;
-      ctx.game.sceneManager.goTo('travel', {
-        from: current,
-        to: province,
-        hours,
-      });
+      const hours = current.region === province.region ? 6 : 12;
+      ctx.game.sceneManager.goTo('travel', { from: current, to: province, hours });
     } else if (result.reason === 'wrong_destination') {
-      // Pista falsa: pierde un viaje corto, vuelve a la oficina
       ctx.time.consume(6);
+      audio.playSFX('error');
       bus.emit(EVENTS.SHOW_TOAST, {
         icon: '❌',
         title: 'Pista falsa',
-        body: `El ladrón no fue a esa provincia. Perdiste 6 horas. Volvé a revisar las pistas.`,
-        duration: 4500,
+        body: 'El ladrón no fue a esa provincia. Perdiste 6 horas.',
+        duration: 4000,
       });
-      audio.playSFX('error');
-      setTimeout(() => ctx.game.sceneManager.goTo('office'), 1200);
+      setTimeout(() => ctx.game.sceneManager.goTo('office'), 1400);
     } else if (result.reason === 'no_next') {
-      bus.emit(EVENTS.SHOW_TOAST, { icon: 'ℹ️', title: 'Ya estás en el destino final', body: 'Emití la orden y capturalo.' });
+      bus.emit(EVENTS.SHOW_TOAST, {
+        icon: 'ℹ️',
+        title: 'Ya estás en el destino final',
+        body: 'Emití la orden de captura y atrapalo.',
+      });
       this._busy = false;
     } else {
       this._busy = false;
     }
   }
 
-  onResize() {
-    this.map?.resize();
-  }
-
   async onUnmount() {
-    this.map?.destroy();
-    this.map = null;
+    this._map?.destroy();
+    this._map = null;
     audio.stopMusic();
   }
 }

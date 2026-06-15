@@ -468,15 +468,17 @@
 .suspect-card__info small { font-size: var(--fs-xs); color: var(--c-text-soft); }
 
 /* ---------- MAP SCENE ---------- */
+/* ---------- MAP SCENE — SVG 2D ---------- */
 .map-scene {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column;
   gap: var(--sp-4);
+  min-height: 0;
 }
 .map-scene__header {
   display: flex;
   align-items: center;
-  gap: var(--sp-4);
+  gap: var(--sp-3);
   flex-wrap: wrap;
 }
 .map-scene__title h2 {
@@ -484,60 +486,75 @@
   color: var(--c-blue);
 }
 .map-scene__title p { color: var(--c-text-soft); font-size: var(--fs-sm); }
-.map-scene__canvas-wrap {
-  position: relative;
-  background: linear-gradient(180deg, #B3E5FC 0%, #E0F7FA 100%);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  box-shadow: var(--shadow-md);
-  aspect-ratio: 4/5;
-  max-height: 70vh;
-}
-#province-map-canvas { width: 100%; height: 100%; cursor: grab; }
-#province-map-canvas:active { cursor: grabbing; }
-.map-scene__legend {
-  position: absolute;
-  bottom: var(--sp-3);
-  left: var(--sp-3);
+
+/* Contenedor principal: mapa + sidebar */
+.map-scene__body {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-1);
-  background: rgba(255,255,255,0.92);
-  padding: var(--sp-2) var(--sp-3);
-  border-radius: var(--radius-md);
-  font-size: var(--fs-xs);
+  gap: var(--sp-4);
+  align-items: flex-start;
 }
-.dot {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  margin-right: var(--sp-2);
-  vertical-align: middle;
-}
-.dot--current { background: var(--c-red); }
-.dot--visited { background: var(--c-green); }
-.dot--available { background: var(--c-blue); }
-.province-tooltip {
-  position: fixed;
-  z-index: var(--z-tooltip);
-  background: var(--c-ink);
-  color: var(--c-white);
-  padding: var(--sp-2) var(--sp-3);
-  border-radius: var(--radius-md);
-  font-size: var(--fs-sm);
-  font-weight: 800;
-  pointer-events: none;
-  box-shadow: var(--shadow-md);
-  transform: translate(-50%, calc(-100% - 12px));
-}
-.map-scene__sidebar {
-  background: var(--c-white);
+
+/* El mapa SVG */
+.map-scene__map-wrap {
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  background: #E0F2FE;
   border-radius: var(--radius-lg);
-  padding: var(--sp-4);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  /* relación de aspecto del mapa (510:710) */
+  aspect-ratio: 51 / 71;
+}
+.map-scene__map-wrap svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Leyenda */
+.map-scene__legend {
+  background: var(--c-white);
+  border-radius: var(--radius-md);
+  padding: var(--sp-3) var(--sp-4);
   box-shadow: var(--shadow-sm);
 }
-.map-scene__sidebar h3 { margin-bottom: var(--sp-3); font-family: var(--font-base); font-weight: 800; }
+.map-scene__legend h3 {
+  font-family: var(--font-base);
+  font-weight: 800;
+  margin-bottom: var(--sp-2);
+  font-size: var(--fs-sm);
+}
+.map-scene__legend ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+}
+.map-scene__legend li { display: flex; align-items: center; gap: var(--sp-2); }
+.legend-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 2px solid rgba(0,0,0,0.1);
+}
+
+/* Sidebar con pistas y costos */
+.map-scene__sidebar {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.map-scene__clues h3,
+.map-scene__costs strong {
+  font-family: var(--font-base);
+  font-weight: 800;
+  margin-bottom: var(--sp-2);
+  display: block;
+}
 .clue-list { display: flex; flex-direction: column; gap: var(--sp-2); }
 .clue-list__item {
   background: var(--c-cream);
@@ -548,15 +565,15 @@
 .clue-list__from { font-size: var(--fs-xs); color: var(--c-text-soft); text-transform: uppercase; }
 .clue-list__item p { margin-top: var(--sp-1); font-style: italic; }
 .map-scene__costs {
-  margin-top: var(--sp-4);
-  padding: var(--sp-3);
   background: var(--c-cream);
   border-radius: var(--radius-md);
+  padding: var(--sp-3) var(--sp-4);
   font-size: var(--fs-sm);
   display: flex;
   flex-direction: column;
-  gap: var(--sp-1);
+  gap: 4px;
 }
+.map-scene__cost-warn { color: var(--c-red); font-weight: 700; margin-top: var(--sp-1); }
 .map-scene__empty { padding: var(--sp-3); color: var(--c-text-soft); font-style: italic; }
 
 /* ---------- TRAVEL ---------- */
@@ -652,13 +669,22 @@
 }
 
 /* ---------- INTERROGATION ---------- */
+.interrogation__header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
 .interrogation__header h2 {
   font-size: var(--fs-xl);
   color: var(--c-blue);
-  margin: var(--sp-3) 0;
+  margin-bottom: var(--sp-1);
 }
-.interrogation__header p { color: var(--c-text-soft); margin-bottom: var(--sp-3); }
+.interrogation__header p { color: var(--c-text-soft); font-size: var(--fs-sm); }
+
+/* Lista de testigos */
 .witness-list { display: flex; flex-direction: column; gap: var(--sp-3); }
+
 .witness-card {
   display: flex;
   align-items: center;
@@ -667,57 +693,121 @@
   padding: var(--sp-3) var(--sp-4);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
+  border: 2px solid transparent;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-.witness-card.is-consulted { opacity: 0.7; }
-.witness-card__avatar {
-  width: 60px;
-  height: 60px;
+.witness-card:hover { box-shadow: var(--shadow-md); border-color: var(--c-blue); }
+.witness-card.is-consulted { opacity: 0.75; background: var(--c-cream); }
+
+/* Retrato NPC */
+.witness-card__portrait {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--c-cream);
+}
+.witness-card__portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+.witness-card__check {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  background: var(--c-green);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  background: hsl(var(--hue, 220deg), 65%, 60%);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.75rem;
-  color: var(--c-white);
-  flex-shrink: 0;
 }
-.witness-card__info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+.witness-card__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
 .witness-card__info strong { font-size: var(--fs-base); }
 .witness-card__info span { font-size: var(--fs-sm); color: var(--c-text-soft); }
-.witness-card__done { color: var(--c-green); font-weight: 800; }
+.witness-card__done { color: var(--c-green); font-weight: 800; font-size: var(--fs-xs); }
 
-/* Diálogo */
+/* ---------- DIALOGUE MODAL ---------- */
+.dialogue-overlay { align-items: flex-end; }
+
+@media (min-width: 480px) {
+  .dialogue-overlay { align-items: center; }
+}
+
 .modal--dialogue {
   max-width: 560px;
-  border-top: 8px solid var(--c-blue);
+  width: 100%;
+  border-top: 6px solid var(--c-blue);
+  padding: 0;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
 }
+
+/* Cabecera del testigo */
 .dialogue__head {
   display: flex;
   align-items: center;
   gap: var(--sp-3);
-  margin-bottom: var(--sp-4);
-  padding-bottom: var(--sp-3);
-  border-bottom: 2px dashed var(--c-cream);
-}
-.dialogue__head strong { display: block; font-size: var(--fs-md); }
-.dialogue__head span { font-size: var(--fs-sm); color: var(--c-text-soft); }
-.dialogue__avatar {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
+  padding: var(--sp-3) var(--sp-4);
   background: var(--c-blue);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.75rem;
-  color: var(--c-white);
+  color: #fff;
 }
+.dialogue__npc-portrait {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,0.4);
+}
+.dialogue__npc-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+.dialogue__npc-info strong { display: block; font-size: var(--fs-md); }
+.dialogue__npc-info span { font-size: var(--fs-sm); opacity: 0.85; }
+
+/* Cuerpo del diálogo */
 .dialogue__line {
   font-style: italic;
-  margin: var(--sp-3) 0;
-  color: var(--c-text);
+  color: var(--c-text-soft);
+  padding: var(--sp-3) var(--sp-4);
+  margin: 0;
+  font-size: var(--fs-sm);
 }
-.dialogue__line--outro { color: var(--c-text-soft); }
+.dialogue__line--intro {
+  color: var(--c-text);
+  font-style: normal;
+  padding-bottom: 0;
+}
+
+.dialogue__clues {
+  padding: 0 var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin: var(--sp-2) 0;
+}
 .dialogue__clue {
   display: flex;
   align-items: flex-start;
@@ -725,13 +815,38 @@
   background: var(--c-cream);
   padding: var(--sp-3);
   border-radius: var(--radius-md);
-  margin: var(--sp-3) 0;
-  border-left: 4px solid var(--c-yellow);
+  border-left: 5px solid var(--c-yellow);
 }
 .dialogue__clue--geo { border-left-color: var(--c-blue); }
-.dialogue__clue--id { border-left-color: var(--c-red); }
-.dialogue__clue-icon { font-size: var(--fs-lg); }
-.dialogue__clue p { font-weight: 800; }
+.dialogue__clue--id  { border-left-color: var(--c-red); }
+.dialogue__clue-icon { font-size: 1.5rem; flex-shrink: 0; line-height: 1; }
+.dialogue__clue p { font-weight: 800; color: var(--c-ink); font-size: var(--fs-sm); margin: 0; }
+
+/* Footer con detective */
+.dialogue__footer {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  border-top: 2px dashed var(--c-cream);
+  background: var(--c-paper);
+  margin-top: auto;
+}
+.dialogue__detective {
+  width: 80px;
+  flex-shrink: 0;
+  /* La imagen tiene fondo transparente, la mostramos completa */
+}
+.dialogue__detective img {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.15));
+}
+.dialogue__close {
+  flex: 1;
+  font-size: var(--fs-base);
+}
 
 /* ---------- NOTEBOOK ---------- */
 .notebook {
