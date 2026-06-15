@@ -1,15 +1,12 @@
 // =============================================================================
 // INTERROGATION SCENE — Entrevistas con testigos
-// Usa imágenes reales de detective y NPCs. Género del testigo determina qué
-// imagen se muestra (npc-m1/2/3 para hombres, npc-f1/2/3 para mujeres).
 // =============================================================================
 
 import { BaseScene } from './BaseScene.js';
-import { audio } from '../systems/AudioSystem.js';
+import { audio }     from '../systems/AudioSystem.js';
 import { bus, EVENTS } from '../core/EventBus.js';
 import gsap from 'gsap';
 
-// Imágenes de testigos según género (rotación por id para variar)
 const NPC_IMAGES = {
   m: ['assets/characters/npc-m1.png', 'assets/characters/npc-m2.png', 'assets/characters/npc-m3.png'],
   f: ['assets/characters/npc-f1.png', 'assets/characters/npc-f2.png', 'assets/characters/npc-f3.png'],
@@ -27,14 +24,14 @@ export class InterrogationScene extends BaseScene {
   }
 
   _render(body, ctx) {
-    const stop = ctx.case.currentStop;
-    const witnesses = stop.witnesses;
+    const stop        = ctx.case.currentStop;
+    const witnesses   = stop.witnesses;
     const provinceName = ctx.case.currentProvince.name;
 
     body.innerHTML = `
       <section class="interrogation">
         <header class="interrogation__header">
-          <button class="menu-btn menu-btn--ghost" data-action="back">← Volver</button>
+          <button class="menu-btn menu-btn--ghost" id="btn-back-interrog">← Volver</button>
           <div>
             <h2>👥 Testigos en ${provinceName}</h2>
             <p>Cada conversación consume <strong>2 horas</strong>.
@@ -45,7 +42,7 @@ export class InterrogationScene extends BaseScene {
         <ul class="witness-list">
           ${witnesses.map((w, i) => {
             const consulted = ctx.case.hasConsultedWitness(w.id);
-            const img = getNpcImage(w, i);
+            const img       = getNpcImage(w, i);
             return `
               <li class="witness-card ${consulted ? 'is-consulted' : ''}">
                 <div class="witness-card__portrait">
@@ -58,7 +55,8 @@ export class InterrogationScene extends BaseScene {
                   ${consulted ? '<small class="witness-card__done">Ya conversaste</small>' : ''}
                 </div>
                 <button class="menu-btn ${consulted ? 'menu-btn--ghost' : 'menu-btn--primary'}"
-                        data-witness="${w.id}">
+                        data-witness-idx="${i}"
+                        data-witness-id="${w.id}">
                   ${consulted ? 'Repasar' : 'Conversar (2h)'}
                 </button>
               </li>
@@ -68,27 +66,32 @@ export class InterrogationScene extends BaseScene {
       </section>
     `;
 
-    body.querySelector('[data-action="back"]').onclick = () => {
+    body.querySelector('#btn-back-interrog').onclick = () => {
       audio.playSFX('click');
       ctx.game.sceneManager.goTo('office');
     };
 
-    body.querySelectorAll('[data-witness]').forEach((btn) => {
+    // ── Cada botón de testigo ──────────────────────────────────────────────
+    body.querySelectorAll('[data-witness-id]').forEach(btn => {
       btn.addEventListener('click', (e) => {
+        // Parar propagación para que no llegue a ningún listener de fondo
         e.stopPropagation();
-        const id = btn.dataset.witness;
-        const witness = witnesses.find(w => w.id === id);
-        const witnessIndex = witnesses.indexOf(witness);
-        this._showDialogue(witness, witnessIndex, ctx.case.hasConsultedWitness(id));
+        e.stopImmediatePropagation();
+
+        const idx     = parseInt(btn.dataset.witnessIdx, 10);
+        const witness = witnesses[idx];
+        this._openDialogue(witness, idx, ctx.case.hasConsultedWitness(witness.id), ctx);
       });
     });
 
-    gsap.from('.witness-card', { x: -30, opacity: 0, duration: 0.4, stagger: 0.1 });
+    gsap.from('.witness-card', { x: -30, opacity: 0, duration: 0.35, stagger: 0.08 });
   }
 
-  _showDialogue(witness, witnessIndex, alreadyConsulted) {
-    const ctx = this.ctx;
+  // ── Abre el modal de diálogo ─────────────────────────────────────────────
+  _openDialogue(witness, idx, alreadyConsulted, ctx) {
+    audio.playSFX('document');
 
+    // Registrar pistas (solo si es primera vez)
     if (!alreadyConsulted) {
       ctx.time.consume(2);
       ctx.case.markWitness(witness.id);
@@ -110,17 +113,17 @@ export class InterrogationScene extends BaseScene {
       ctx.game.saveCurrentGame();
     }
 
-    const npcImg = getNpcImage(witness, witnessIndex);
-
+    // ── Crear overlay ─────────────────────────────────────────────────────
     const overlay = document.createElement('div');
-    overlay.className = 'modal-overlay dialogue-overlay';
-    overlay.innerHTML = `
-      <div class="modal modal--dialogue" role="dialog" aria-modal="true" aria-label="Conversación con ${witness.name}">
+    overlay.className   = 'modal-overlay dialogue-overlay';
+    // pointer-events none hasta que lo habilitamos explícitamente
+    overlay.style.pointerEvents = 'none';
 
-        <!-- Cabecera testigo -->
+    overlay.innerHTML = `
+      <div class="modal modal--dialogue" role="dialog" aria-modal="true">
         <header class="dialogue__head">
           <div class="dialogue__npc-portrait">
-            <img src="${npcImg}" alt="${witness.name}" />
+            <img src="${getNpcImage(witness, idx)}" alt="${witness.name}" />
           </div>
           <div class="dialogue__npc-info">
             <strong>${witness.name}</strong>
@@ -128,79 +131,83 @@ export class InterrogationScene extends BaseScene {
           </div>
         </header>
 
-        <!-- Intro -->
         <p class="dialogue__line dialogue__line--intro">"${witness.intro}"</p>
 
-        <!-- Pistas -->
         <div class="dialogue__clues">
           ${witness.geographicClue ? `
             <div class="dialogue__clue dialogue__clue--geo">
               <span class="dialogue__clue-icon">🧭</span>
               <p>"${witness.geographicClue}"</p>
-            </div>
-          ` : ''}
+            </div>` : ''}
           ${witness.identityClue ? `
             <div class="dialogue__clue dialogue__clue--id">
               <span class="dialogue__clue-icon">🔍</span>
               <p>"${witness.identityClue}"</p>
-            </div>
-          ` : ''}
+            </div>` : ''}
         </div>
 
-        <!-- Outro -->
         <p class="dialogue__line dialogue__line--outro">"${witness.outro}"</p>
 
-        <!-- Detective + botón -->
         <footer class="dialogue__footer">
           <div class="dialogue__detective">
-            <img src="assets/characters/detective.png" alt="Tu detective" />
+            <img src="assets/characters/detective.png" alt="Detective" />
           </div>
-          <button class="menu-btn menu-btn--primary dialogue__close">
+          <button class="menu-btn menu-btn--primary" id="btn-close-dialogue">
             Anotar y cerrar 📝
           </button>
         </footer>
-
       </div>
     `;
 
-    const modal = overlay.querySelector('.modal--dialogue');
-
-    // Clicks dentro del modal nunca cierran el overlay
-    modal.addEventListener('click', (e) => e.stopPropagation());
-
-    overlay.querySelector('.dialogue__close').onclick = (e) => {
-      e.stopPropagation();
-      overlay.remove();
-      this._render(this.body, ctx);
-    };
-
-    // Agregar el overlay al DOM PRIMERO
     document.body.appendChild(overlay);
 
-    // El listener de cierre por fondo oscuro se activa DESPUÉS del tick actual,
-    // así el click del botón "Conversar" ya terminó y no lo dispara
-    requestAnimationFrame(() => {
-      overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) overlay.remove();
+    // ── CRÍTICO: habilitar interacción sólo DESPUÉS de que el click
+    //    original ya fue completamente procesado por el browser (2 frames)
+    let closeEnabled = false;
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      overlay.style.pointerEvents = '';
+      closeEnabled = true;
+
+      // Botón cerrar
+      document.getElementById('btn-close-dialogue').addEventListener('click', (e) => {
+        e.stopPropagation();
+        this._closeDialogue(overlay, ctx);
       });
-    });
 
-    // Animación de entrada
-    gsap.from(overlay.querySelector('.modal--dialogue'), {
-      y: 30, opacity: 0, duration: 0.3, ease: 'back.out(1.4)'
-    });
+      // Click en fondo oscuro
+      overlay.addEventListener('click', (e) => {
+        if (closeEnabled && e.target === overlay) {
+          this._closeDialogue(overlay, ctx);
+        }
+      });
+    }));
 
+    // Animación entrada
+    gsap.fromTo(
+      overlay.querySelector('.modal--dialogue'),
+      { y: 40, opacity: 0, scale: 0.95 },
+      { y: 0,  opacity: 1, scale: 1, duration: 0.28, ease: 'back.out(1.5)' }
+    );
+
+    // Toast con delay para no interferir
     if (!alreadyConsulted) {
-      // Delay para que el toast aparezca después de que el modal esté visible
-      setTimeout(() => {
-        bus.emit(EVENTS.SHOW_TOAST, {
-          icon: '📝',
-          title: 'Pistas anotadas en el cuaderno',
-          body: 'Revisalas arriba a la derecha.',
-          duration: 2800,
-        });
-      }, 600);
+      setTimeout(() => bus.emit(EVENTS.SHOW_TOAST, {
+        icon: '📝',
+        title: 'Pistas anotadas',
+        body: 'Revisalas en tu cuaderno (esquina superior).',
+        duration: 2500,
+      }), 800);
     }
+  }
+
+  _closeDialogue(overlay, ctx) {
+    gsap.to(overlay.querySelector('.modal--dialogue'), {
+      y: 20, opacity: 0, duration: 0.18,
+      onComplete: () => {
+        overlay.remove();
+        this._render(this.body, ctx);
+      }
+    });
   }
 
   async onUnmount() {
