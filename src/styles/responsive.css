@@ -19,21 +19,13 @@
   .scene-body { padding: var(--sp-6); gap: var(--sp-6); }
   .title-screen__content { padding: var(--sp-8) var(--sp-6); }
 
+  /* Detective visible en tablet */
+  .title-screen__detective { display: block; width: 240px; margin-right: -20px; }
+
   /* Mapa: lado a lado con sidebar */
-  .map-scene__body {
-    flex-direction: row;
-    align-items: flex-start;
-    gap: var(--sp-5);
-  }
-  .map-scene__map-wrap {
-    flex: 0 0 340px;
-    max-width: 340px;
-    margin: 0;
-  }
-  .map-scene__sidebar {
-    flex: 1;
-    min-width: 0;
-  }
+  .map-scene__body { flex-direction: row; align-items: flex-start; gap: var(--sp-5); }
+  .map-scene__map-wrap { flex: 0 0 260px; max-width: 260px; margin: 0; }
+  .map-scene__sidebar { flex: 1; min-width: 0; }
 
   .ending__stats { grid-template-columns: repeat(4, 1fr); }
   .office__grid { grid-template-columns: repeat(2, 1fr); }
@@ -44,7 +36,8 @@
 /* ---------- LAPTOP (1024px+) ---------- */
 @media (min-width: 1024px) {
   :root { --font-scale: 1.1; }
-  .map-scene__map-wrap { flex: 0 0 420px; max-width: 420px; }
+  .title-screen__detective { width: 320px; margin-right: -30px; }
+  .map-scene__map-wrap { flex: 0 0 300px; max-width: 300px; }
   .office__grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
   .hud__brand { font-size: var(--fs-lg); }
   .hud__case { font-size: var(--fs-base); }

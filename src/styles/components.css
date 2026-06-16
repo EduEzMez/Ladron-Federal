@@ -176,6 +176,7 @@
 .title-screen {
   position: relative;
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -197,14 +198,42 @@
 .bg-shape--1 { width: 300px; height: 300px; top: -100px; left: -100px; background: var(--c-yellow); }
 .bg-shape--2 { width: 400px; height: 400px; bottom: -150px; right: -100px; background: var(--c-green); }
 .bg-shape--3 { width: 250px; height: 250px; top: 40%; right: 20%; background: var(--c-red); opacity: 0.3; }
-.title-screen__content {
+
+/* Layout: detective a la izquierda, menú a la derecha (desktop) */
+.title-screen__layout {
   position: relative;
-  text-align: center;
-  max-width: 600px;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0;
+  width: 100%;
+  max-width: 900px;
+}
+
+/* Imagen de la detective */
+.title-screen__detective {
+  display: none; /* oculta en mobile, aparece en tablet+ */
+  flex-shrink: 0;
+  width: 280px;
+  align-self: flex-end;
+}
+.title-screen__detective img {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: drop-shadow(4px 8px 16px rgba(0,0,0,0.2));
+}
+
+/* Panel de menú */
+.title-screen__content {
   background: var(--c-white);
-  padding: var(--sp-7) var(--sp-5);
+  padding: var(--sp-6) var(--sp-5);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
+  text-align: center;
+  max-width: 480px;
+  width: 100%;
 }
 .title-screen__game-title {
   font-family: var(--font-display);

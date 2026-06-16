@@ -4,32 +4,33 @@
 // encima de cada provincia. Sin SVG paths complejos: forma real garantizada.
 // =============================================================================
 
-// Coordenadas (x,y) de cada pin en la imagen 351×740px
+// Coordenadas (x,y) calibradas sobre la imagen mapa-argentina.png (351×740px)
+// Basadas en centroides geográficos reales de cada provincia
 const PROVINCE_PINS = {
-  jujuy:               { x: 130, y:  54, name: "Jujuy" },
-  salta:               { x: 157, y:  90, name: "Salta" },
-  formosa:             { x: 225, y:  72, name: "Formosa" },
-  misiones:            { x: 292, y: 138, name: "Misiones" },
-  chaco:               { x: 210, y: 118, name: "Chaco" },
-  tucuman:             { x: 136, y: 132, name: "Tucumán" },
-  santiago_del_estero: { x: 190, y: 150, name: "Santiago del Estero" },
-  catamarca:           { x: 112, y: 145, name: "Catamarca" },
-  corrientes:          { x: 256, y: 172, name: "Corrientes" },
-  entre_rios:          { x: 238, y: 230, name: "Entre Ríos" },
-  la_rioja:            { x: 110, y: 182, name: "La Rioja" },
-  san_juan:            { x:  90, y: 215, name: "San Juan" },
-  cordoba:             { x: 162, y: 222, name: "Córdoba" },
-  santa_fe:            { x: 210, y: 200, name: "Santa Fe" },
-  mendoza:             { x:  88, y: 272, name: "Mendoza" },
-  san_luis:            { x: 132, y: 262, name: "San Luis" },
-  buenos_aires:        { x: 210, y: 320, name: "Buenos Aires" },
-  caba:                { x: 244, y: 283, name: "CABA" },
-  la_pampa:            { x: 138, y: 330, name: "La Pampa" },
-  neuquen:             { x:  68, y: 360, name: "Neuquén" },
-  rio_negro:           { x: 108, y: 402, name: "Río Negro" },
-  chubut:              { x: 106, y: 480, name: "Chubut" },
-  santa_cruz:          { x:  90, y: 578, name: "Santa Cruz" },
-  tierra_del_fuego:    { x: 120, y: 668, name: "Tierra del Fuego" },
+  jujuy:               { x: 125, y:  56, name: "Jujuy" },
+  salta:               { x: 155, y:  89, name: "Salta" },
+  formosa:             { x: 216, y:  83, name: "Formosa" },
+  misiones:            { x: 289, y: 141, name: "Misiones" },
+  chaco:               { x: 198, y: 133, name: "Chaco" },
+  tucuman:             { x: 134, y: 131, name: "Tucumán" },
+  santiago_del_estero: { x: 172, y: 152, name: "Santiago del Estero" },
+  catamarca:           { x: 101, y: 141, name: "Catamarca" },
+  corrientes:          { x: 252, y: 174, name: "Corrientes" },
+  entre_rios:          { x: 232, y: 238, name: "Entre Ríos" },
+  la_rioja:            { x: 101, y: 185, name: "La Rioja" },
+  san_juan:            { x:  80, y: 216, name: "San Juan" },
+  cordoba:             { x: 155, y: 228, name: "Córdoba" },
+  santa_fe:            { x: 200, y: 210, name: "Santa Fe" },
+  mendoza:             { x:  76, y: 286, name: "Mendoza" },
+  san_luis:            { x: 124, y: 272, name: "San Luis" },
+  buenos_aires:        { x: 210, y: 332, name: "Buenos Aires" },
+  caba:                { x: 241, y: 290, name: "CABA" },
+  la_pampa:            { x: 128, y: 342, name: "La Pampa" },
+  neuquen:             { x:  58, y: 374, name: "Neuquén" },
+  rio_negro:           { x: 100, y: 410, name: "Río Negro" },
+  chubut:              { x:  92, y: 490, name: "Chubut" },
+  santa_cruz:          { x:  84, y: 597, name: "Santa Cruz" },
+  tierra_del_fuego:    { x: 114, y: 682, name: "Tierra del Fuego" },
 };
 
 const COLOR = {
