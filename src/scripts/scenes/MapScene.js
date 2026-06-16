@@ -110,10 +110,11 @@ export class MapScene extends BaseScene {
       bus.emit(EVENTS.SHOW_TOAST, {
         icon: '❌',
         title: 'Pista falsa',
-        body: 'El ladrón no fue a esa provincia. Perdiste 6 horas.',
+        body: 'El ladrón no fue a esa provincia. Perdiste 6 horas. Seguí buscando.',
         duration: 4000,
       });
-      setTimeout(() => ctx.game.sceneManager.goTo('office'), 1400);
+      // Quedar en el mapa — solo desbloquear para que pueda seguir eligiendo
+      this._busy = false;
     } else if (result.reason === 'no_next') {
       bus.emit(EVENTS.SHOW_TOAST, {
         icon: 'ℹ️',
