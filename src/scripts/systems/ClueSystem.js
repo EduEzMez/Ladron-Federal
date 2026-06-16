@@ -40,12 +40,17 @@ export class ClueSystem {
 
   /** Filtra un roster de sospechosos por los atributos conocidos. */
   matchSuspects(roster) {
+    if (!roster?.length || !Object.keys(this.knownAttributes).length) return roster ?? [];
     return roster.filter(s =>
       Object.entries(this.knownAttributes).every(([k, v]) => {
         const target = s[k];
         if (target == null) return false;
-        if (typeof target === 'object' && target.id != null) return target.id === v;
-        return target === v;
+        // Atributo es objeto con id (hair, profession, hobby, food, place, color)
+        if (typeof target === 'object' && target.id != null) {
+          return target.id === v || target.name === v;
+        }
+        // Atributo es string directo (alias, accessory)
+        return String(target) === String(v);
       })
     );
   }

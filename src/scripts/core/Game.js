@@ -102,7 +102,7 @@ export class Game {
     this.time.reset(7);
     this.clues.reset();
     const seed = `case-${Date.now()}`;
-    this.case.startCase(seed);
+    this.case.startCase(seed, this.suspectRoster); // pasa el roster para que el culpable esté en él
     saveSystem.updateStats(s => ({ ...s, casesPlayed: (s.casesPlayed || 0) + 1 }));
     this.sceneManager.goTo('intro');
   }

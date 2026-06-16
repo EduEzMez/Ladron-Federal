@@ -88,34 +88,58 @@ function generateWitnesses(rng, currentProv, nextProv, suspect) {
 /** Determina qué atributo revela la plantilla (basado en su retorno). */
 function deriveAttributeFromTemplate(tpl, suspect) {
   const text = tpl({ suspect });
-  if (text.includes(suspect.hair.name)) return { key: 'hair', value: suspect.hair.id };
-  if (text.includes(suspect.profession.name)) return { key: 'profession', value: suspect.profession.id };
-  if (text.includes(suspect.hobby.name)) return { key: 'hobby', value: suspect.hobby.id };
-  if (text.includes(suspect.food.name)) return { key: 'food', value: suspect.food.id };
-  if (text.includes(suspect.place.name)) return { key: 'place', value: suspect.place.id };
-  if (text.includes(suspect.color.name)) return { key: 'color', value: suspect.color.id };
-  if (text.includes(suspect.alias)) return { key: 'alias', value: suspect.alias };
-  return { key: 'accessory', value: suspect.accessory };
+
+  // Para atributos que son objetos {id, name}, guardar el id para comparación exacta
+  if (suspect.hair?.name && text.includes(suspect.hair.name))
+    return { key: 'hair',       value: suspect.hair.id };
+  if (suspect.profession?.name && text.includes(suspect.profession.name))
+    return { key: 'profession', value: suspect.profession.id };
+  if (suspect.hobby?.name && text.includes(suspect.hobby.name))
+    return { key: 'hobby',      value: suspect.hobby.id };
+  if (suspect.food?.name && text.includes(suspect.food.name))
+    return { key: 'food',       value: suspect.food.id };
+  if (suspect.place?.name && text.includes(suspect.place.name))
+    return { key: 'place',      value: suspect.place.id };
+  if (suspect.color?.name && text.includes(suspect.color.name))
+    return { key: 'color',      value: suspect.color.id };
+
+  // Alias y accesorios son strings directos
+  if (suspect.alias && text.includes(suspect.alias))
+    return { key: 'alias',      value: suspect.alias };
+
+  // Fallback: usar el primer atributo objeto disponible
+  if (suspect.profession?.id)
+    return { key: 'profession', value: suspect.profession.id };
+
+  return null;
 }
 
 /**
  * Genera un caso completo.
+ * @param {number|string} seed
+ * @param {Array} suspectRoster - roster de sospechosos ya generados (para que el culpable esté en la lista)
  */
-export function generateCase(seed) {
+export function generateCase(seed, suspectRoster = null) {
   const rng = createRng(typeof seed === 'string' ? hashSeed(seed) : seed);
 
   // 1. Elegir objeto cultural robado
   const stolen = pick(rng, CULTURAL_ITEMS);
   const origin = getProvinceById(stolen.province);
 
-  // 2. Ruta de escape: difficulty determina largo
-  const routeLength = stolen.difficulty + intBetween(rng, 1, 2); // 2 a 5 hops
+  // 2. Ruta de escape
+  const routeLength = stolen.difficulty + intBetween(rng, 1, 2);
   const route = generateRoute(rng, origin, routeLength);
 
-  // 3. Generar sospechoso asignado al caso
-  const suspect = generateSuspect(seed + '_suspect');
+  // 3. Elegir sospechoso DEL ROSTER (si se pasa) o generar uno nuevo
+  //    Esto garantiza que el culpable siempre aparezca en la Sala de Expedientes
+  let suspect;
+  if (suspectRoster && suspectRoster.length > 0) {
+    suspect = pick(rng, suspectRoster);
+  } else {
+    suspect = generateSuspect(seed + '_suspect');
+  }
 
-  // 4. Generar testigos en cada parada (excepto la última)
+  // 4. Generar testigos
   const stops = route.map((prov, idx) => ({
     province: prov,
     isOrigin: idx === 0,
@@ -123,9 +147,7 @@ export function generateCase(seed) {
     witnesses: generateWitnesses(rng, prov, route[idx + 1] ?? null, suspect),
   }));
 
-  // 5. Calcular dificultad y tiempo límite
   const baseDays = 7;
-  const totalDays = baseDays;
 
   return {
     id: `case_${seed}`,
@@ -137,7 +159,7 @@ export function generateCase(seed) {
     stops,
     suspect,
     difficulty: stolen.difficulty,
-    daysLimit: totalDays,
+    daysLimit: baseDays,
     briefing: buildBriefing(stolen, origin),
   };
 }

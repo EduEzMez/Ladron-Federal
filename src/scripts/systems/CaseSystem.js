@@ -16,10 +16,12 @@ export class CaseSystem {
     this.warrantIssued = false;
     this.warrantAttempts = 0;
     this.warrantSuspect = null;
+    this._roster = null; // guardamos referencia para loadJSON
   }
 
-  startCase(seed) {
-    this.activeCase = generateCase(seed);
+  startCase(seed, roster = null) {
+    this._roster = roster;
+    this.activeCase = generateCase(seed, roster); // pasa el roster para elegir culpable de él
     this.currentStopIndex = 0;
     this.visitedProvinces = new Set([this.activeCase.origin.id]);
     this.consultedWitnesses = new Set();
@@ -113,7 +115,8 @@ export class CaseSystem {
 
   loadJSON(data, roster) {
     if (!data?.seed) return false;
-    this.activeCase = generateCase(data.seed);
+    this._roster = roster;
+    this.activeCase = generateCase(data.seed, roster); // mismo roster para reproducibilidad
     this.currentStopIndex = data.currentStopIndex ?? 0;
     this.visitedProvinces = new Set(data.visitedProvinces ?? []);
     this.consultedWitnesses = new Set(data.consultedWitnesses ?? []);
